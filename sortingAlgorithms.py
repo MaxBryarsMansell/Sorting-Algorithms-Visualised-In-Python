@@ -8,12 +8,13 @@ from copy import copy
 w = 1280
 h = 720
 minElements = 100
-maxElements = 300
+maxElements = 500
 animation_delay = 1 #in ms
 COLOUR_MODE = True
 DISPLAY_MODE_DOTS = False
 
 def bubbleSort(data):
+    last = time.perf_counter()
     for e in range(len(data) - 1, 0, -1):
         for i in range(1, len(data)):
             if data[i - 1] > data[i]:
@@ -23,9 +24,10 @@ def bubbleSort(data):
                 queue.put(lambda: canvas.update())
                 queue.put(lambda: canvas.delete("all"))
                 time.sleep(animation_delay / 1000)
-    print("Sorted with Bubble Sort")
+    print("Sorted with Bubble Sort in", time.perf_counter() - last)
 
 def mergeSort(data):
+    last = time.perf_counter()
     n = len(data)
     step = 1
     while (step < n):
@@ -56,9 +58,10 @@ def mergeSort(data):
                 time.sleep(animation_delay / 1000)
             i = i + 2 * step
         step = step * 2
-    print("Sorted with Merge Sort.")
+    print("Sorted with Merge Sort in ",time.perf_counter() - last)
 
 def selectionSort(data):
+    last = time.perf_counter()
     for e in range(len(data)):
         smallest = e
         for j in range(e + 1, len(data)):
@@ -71,11 +74,10 @@ def selectionSort(data):
         temp = data[e]
         data[e] = data[smallest]
         data[smallest] = temp
-
-
-    print("Sorted with Selection Sort")
+    print("Sorted with Selection Sort in ", time.perf_counter() - last)
 
 def insertionSort(data):
+    last = time.perf_counter()
     for e in range(1, len(data)):
         index = data[e]
         j = e
@@ -88,7 +90,7 @@ def insertionSort(data):
             queue.put(lambda: canvas.delete("all"))
             time.sleep(animation_delay / 1000)
         data[j] = index
-    print("Sorted with Insertion Sort")
+    print("Sorted with Insertion Sort in ", time.perf_counter() - last)
 
 def DrawList(data, current_selection):
     width = w / len(data)
