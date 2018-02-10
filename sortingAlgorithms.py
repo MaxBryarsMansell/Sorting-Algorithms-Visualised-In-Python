@@ -7,24 +7,56 @@ from copy import copy
 # Properties
 w = 1280
 h = 720
-minElements = 150
-maxElements = 200
+minElements = 100
+maxElements = 300
 animation_delay = 1 #in ms
 COLOUR_MODE = True
-DISPLAY_MODE_DOTS = True
+DISPLAY_MODE_DOTS = False
 
 def bubbleSort(data):
     for e in range(len(data) - 1, 0, -1):
         for i in range(1, len(data)):
             if data[i - 1] > data[i]:
                 data[i], data[i - 1] = data[i - 1], data[i]
-                    
+
                 queue.put(lambda: DrawList(data, i))
                 queue.put(lambda: canvas.update())
                 queue.put(lambda: canvas.delete("all"))
                 time.sleep(animation_delay / 1000)
     print("Sorted with Bubble Sort")
-     
+
+def mergeSort(data):
+    n = len(data)
+    step = 1
+    while (step < n):
+        i = 0
+        while (i < n - step):
+            a = data[i:i + step]
+            b = data[i + step:min(i + 2 * step, n)]
+            for k in range(i, min(i + 2 * step, n)):
+                if (len(a) > 0 and len(b) > 0):
+                    if (a[0] > b[0]):
+                        data[k] = b[0]
+                        b.remove(b[0])
+                    else:
+                        data[k] = a[0]
+                        a.remove(a[0])
+                else:
+                    for p in range(k, min(i + 2 * step, n)):
+                        if (len(b) > 0):
+                            data[p] = b[0]
+                            b.remove(b[0])
+                    for j in range(k, min(i + 2 * step, n)):
+                        if (len(a) > 0):
+                            data[j] = a[0]
+                            a.remove(a[0])
+                queue.put(lambda: DrawList(data, k))
+                queue.put(lambda: canvas.update())
+                queue.put(lambda: canvas.delete("all"))
+                time.sleep(animation_delay / 1000)
+            i = i + 2 * step
+        step = step * 2
+    print("Sorted with Merge Sort.")
 
 def selectionSort(data):
     for e in range(len(data)):
@@ -39,8 +71,8 @@ def selectionSort(data):
         temp = data[e]
         data[e] = data[smallest]
         data[smallest] = temp
-        
-        
+
+
     print("Sorted with Selection Sort")
 
 def insertionSort(data):
@@ -77,10 +109,16 @@ def DrawList(data, current_selection):
         x += width
 
 def Main():
+
     while True:
         lst = random.sample(range(0, h - 10), random.randint(minElements, maxElements))
         lst_copy = copy(lst)
 
+        mergeSort(lst)
+        with queue.mutex:
+            queue.queue.clear()
+
+        lst = copy(lst_copy)
         insertionSort(lst)
         with queue.mutex:
             queue.queue.clear()
@@ -89,18 +127,18 @@ def Main():
         selectionSort(lst)
         with queue.mutex:
             queue.queue.clear()
-        
+
         lst = copy(lst_copy)
         bubbleSort(lst)
         with queue.mutex:
             queue.queue.clear()
-        
+
         lst = []
 
 
 def Cleanup():
     os._exit(0)
-    
+
 window = tkinter.Tk()
 window.protocol("WM_DELETE_WINDOW", Cleanup)
 window.title("Sorting Algorithms Visualised")
@@ -111,16 +149,9 @@ canvas.pack()
 queue = queue.Queue()
 
 thread = threading.Thread(target = Main, args = ())
+thread.daemon = True
 thread.start()
 
 while True:
     function = queue.get()
     function()
-
-
-
-
-
-
-
-
