@@ -9,7 +9,7 @@ w = 1280
 h = 720
 minElements = 100
 maxElements = 500
-animation_delay = 1 #in ms
+animation_delay = 10 #in ms
 COLOUR_MODE = True
 DISPLAY_MODE_DOTS = False
 
@@ -52,6 +52,7 @@ def mergeSort(data):
                         if (len(a) > 0):
                             data[j] = a[0]
                             a.remove(a[0])
+
                 queue.put(lambda: DrawList(data, k))
                 queue.put(lambda: canvas.update())
                 queue.put(lambda: canvas.delete("all"))
@@ -111,7 +112,6 @@ def DrawList(data, current_selection):
         x += width
 
 def Main():
-
     while True:
         lst = random.sample(range(0, h - 10), random.randint(minElements, maxElements))
         lst_copy = copy(lst)
@@ -139,6 +139,7 @@ def Main():
 
 
 def Cleanup():
+    window.quit()
     os._exit(0)
 
 window = tkinter.Tk()
