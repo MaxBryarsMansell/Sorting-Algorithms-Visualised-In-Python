@@ -126,7 +126,7 @@ window.title("Sorting Algorithms Visualised")
 canvas = tkinter.Canvas(window, bg="black", height=h, width=w)
 canvas.pack()
 queue = queue.Queue()
-lst = random.sample(range(0, h - 10), random.randint(minElements, maxElements))
+lst = random.sample(range(0, h - 10), minElements)
 sorting = False
 lstSelected = False
 
@@ -162,14 +162,23 @@ SelectionSort.pack(side="left")
 InsertionSort = tkinter.Button(window, text="Insertion Sort", command = lambda: beginSort("INSERTION"))
 InsertionSort.pack(side="left")
 
+slider = tkinter.Scale(window, from_=minElements, to=maxElements, orient="horizontal", length=250)
+slider.value=maxElements
+slider.pack(side="right")
+
+sliderValue = slider.get()
+def setLst():
+    global sliderValue, lst
+    lst = random.sample(range(0, h - 10), slider.get())
+    sliderValue = slider.get()
+
 while True:
-    DrawList(lst, 0)
     window.update()
     window.update_idletasks()
     canvas.delete("all")
-    if (not sorting and not lstSelected):
-        lst = random.sample(range(0, h - 10), random.randint(minElements, maxElements))
-        lstSelected = True
+    if (sliderValue != slider.get() and not sorting): setLst()
     if (sorting):
         function = queue.get()
         function()
+    else:
+        DrawList(lst, 0)
