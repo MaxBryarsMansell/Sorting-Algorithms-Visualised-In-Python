@@ -3,13 +3,14 @@
 import random, tkinter, os, colorsys, time, threading, queue
 from math import floor
 from copy import copy
+from enum import Enum
 
 # Properties
 w = 1280
 h = 720
 minElements = 100
 maxElements = 500
-animation_delay = 10 #in ms
+animation_delay = 1 #in ms
 COLOUR_MODE = True
 DISPLAY_MODE_DOTS = False
 
@@ -21,10 +22,11 @@ def bubbleSort(data):
                 data[i], data[i - 1] = data[i - 1], data[i]
 
                 queue.put(lambda: DrawList(data, i))
-                queue.put(lambda: canvas.update())
-                queue.put(lambda: canvas.delete("all"))
                 time.sleep(animation_delay / 1000)
     print("Sorted with Bubble Sort in", time.perf_counter() - last)
+    global sorting, lstSelected
+    sorting = False
+    lstSelected = False
 
 def mergeSort(data):
     last = time.perf_counter()
@@ -54,12 +56,13 @@ def mergeSort(data):
                             a.remove(a[0])
 
                 queue.put(lambda: DrawList(data, k))
-                queue.put(lambda: canvas.update())
-                queue.put(lambda: canvas.delete("all"))
                 time.sleep(animation_delay / 1000)
             i = i + 2 * step
         step = step * 2
     print("Sorted with Merge Sort in ",time.perf_counter() - last)
+    global sorting, lstSelected
+    sorting = False
+    lstSelected = False
 
 def selectionSort(data):
     last = time.perf_counter()
@@ -69,13 +72,14 @@ def selectionSort(data):
             if data[j] < data[smallest]: smallest = j;
 
             queue.put(lambda: DrawList(data, j))
-            queue.put(lambda: canvas.update())
-            queue.put(lambda: canvas.delete("all"))
             time.sleep(animation_delay / 1000)
         temp = data[e]
         data[e] = data[smallest]
         data[smallest] = temp
     print("Sorted with Selection Sort in ", time.perf_counter() - last)
+    global sorting, lstSelected
+    sorting = False
+    lstSelected = False
 
 def insertionSort(data):
     last = time.perf_counter()
@@ -87,11 +91,12 @@ def insertionSort(data):
             j -= 1
 
             queue.put(lambda: DrawList(data, j))
-            queue.put(lambda: canvas.update())
-            queue.put(lambda: canvas.delete("all"))
             time.sleep(animation_delay / 1000)
         data[j] = index
     print("Sorted with Insertion Sort in ", time.perf_counter() - last)
+    global sorting, lstSelected
+    sorting = False
+    lstSelected = False
 
 def DrawList(data, current_selection):
     width = w / len(data)
@@ -111,33 +116,6 @@ def DrawList(data, current_selection):
             canvas.create_oval(x, y - data[e], x + width, y - data[e] + width, fill=colour)
         x += width
 
-def Main():
-    while True:
-        lst = random.sample(range(0, h - 10), random.randint(minElements, maxElements))
-        lst_copy = copy(lst)
-
-        mergeSort(lst)
-        with queue.mutex:
-            queue.queue.clear()
-
-        lst = copy(lst_copy)
-        insertionSort(lst)
-        with queue.mutex:
-            queue.queue.clear()
-
-        lst = copy(lst_copy)
-        selectionSort(lst)
-        with queue.mutex:
-            queue.queue.clear()
-
-        lst = copy(lst_copy)
-        bubbleSort(lst)
-        with queue.mutex:
-            queue.queue.clear()
-
-        lst = []
-
-
 def Cleanup():
     window.quit()
     os._exit(0)
@@ -145,16 +123,53 @@ def Cleanup():
 window = tkinter.Tk()
 window.protocol("WM_DELETE_WINDOW", Cleanup)
 window.title("Sorting Algorithms Visualised")
-
 canvas = tkinter.Canvas(window, bg="black", height=h, width=w)
 canvas.pack()
-
 queue = queue.Queue()
+lst = random.sample(range(0, h - 10), random.randint(minElements, maxElements))
+sorting = False
+lstSelected = False
 
-thread = threading.Thread(target = Main, args = ())
-thread.daemon = True
-thread.start()
+def beginSort(sort):
+    global sorting
+    global lst
+    thread = threading.Thread()
+    thread.daemon = True
+    if (not thread.isAlive() and not sorting):
+        with queue.mutex:
+            queue.queue.clear()
+        if (sort == "BUBBLE"):
+            thread._target=lambda: bubbleSort(lst)
+        if (sort == "MERGE"):
+            thread._target=lambda: mergeSort(lst)
+        if (sort == "SELECTION"):
+            thread._target=lambda: selectionSort(lst)
+        if (sort == "INSERTION"):
+            thread._target=lambda: insertionSort(lst)
+    if (not sorting):
+        sorting = True
+        thread.start()
+
+BubbleSort = tkinter.Button(window, text="Bubble Sort", command =  lambda: beginSort("BUBBLE"))
+BubbleSort.pack(side="left")
+
+MergeSort = tkinter.Button(window, text="Merge Sort", command = lambda: beginSort("MERGE"))
+MergeSort.pack(side="left")
+
+SelectionSort = tkinter.Button(window, text="Selection Sort", command = lambda: beginSort("SELECTION"))
+SelectionSort.pack(side="left")
+
+InsertionSort = tkinter.Button(window, text="Insertion Sort", command = lambda: beginSort("INSERTION"))
+InsertionSort.pack(side="left")
 
 while True:
-    function = queue.get()
-    function()
+    DrawList(lst, 0)
+    window.update()
+    window.update_idletasks()
+    canvas.delete("all")
+    if (not sorting and not lstSelected):
+        lst = random.sample(range(0, h - 10), random.randint(minElements, maxElements))
+        lstSelected = True
+    if (sorting):
+        function = queue.get()
+        function()
