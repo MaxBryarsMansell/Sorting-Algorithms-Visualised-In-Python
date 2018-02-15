@@ -24,9 +24,8 @@ def bubbleSort(data):
                 queue.put(lambda: DrawList(data, i))
                 time.sleep(animation_delay / 1000)
     print("Sorted with Bubble Sort in", time.perf_counter() - last)
-    global sorting, lstSelected
+    global sorting
     sorting = False
-    lstSelected = False
 
 def mergeSort(data):
     last = time.perf_counter()
@@ -60,9 +59,8 @@ def mergeSort(data):
             i = i + 2 * step
         step = step * 2
     print("Sorted with Merge Sort in ",time.perf_counter() - last)
-    global sorting, lstSelected
+    global sorting
     sorting = False
-    lstSelected = False
 
 def selectionSort(data):
     last = time.perf_counter()
@@ -77,9 +75,8 @@ def selectionSort(data):
         data[e] = data[smallest]
         data[smallest] = temp
     print("Sorted with Selection Sort in ", time.perf_counter() - last)
-    global sorting, lstSelected
+    global sorting
     sorting = False
-    lstSelected = False
 
 def insertionSort(data):
     last = time.perf_counter()
@@ -94,9 +91,8 @@ def insertionSort(data):
             time.sleep(animation_delay / 1000)
         data[j] = index
     print("Sorted with Insertion Sort in ", time.perf_counter() - last)
-    global sorting, lstSelected
+    global sorting
     sorting = False
-    lstSelected = False
 
 def DrawList(data, current_selection):
     width = w / len(data)
