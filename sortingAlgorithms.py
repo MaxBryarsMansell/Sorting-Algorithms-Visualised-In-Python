@@ -24,8 +24,7 @@ def bubbleSort(data):
                 queue.put(lambda: DrawList(data, i))
                 time.sleep(animation_delay / 1000)
     print("Sorted with Bubble Sort in", time.perf_counter() - last)
-    global sorting
-    sorting = False
+    FinishedSorting()
 
 def mergeSort(data):
     last = time.perf_counter()
@@ -59,8 +58,7 @@ def mergeSort(data):
             i = i + 2 * step
         step = step * 2
     print("Sorted with Merge Sort in ",time.perf_counter() - last)
-    global sorting
-    sorting = False
+    FinishedSorting()
 
 def selectionSort(data):
     last = time.perf_counter()
@@ -75,8 +73,7 @@ def selectionSort(data):
         data[e] = data[smallest]
         data[smallest] = temp
     print("Sorted with Selection Sort in ", time.perf_counter() - last)
-    global sorting
-    sorting = False
+    FinishedSorting()
 
 def insertionSort(data):
     last = time.perf_counter()
@@ -91,8 +88,7 @@ def insertionSort(data):
             time.sleep(animation_delay / 1000)
         data[j] = index
     print("Sorted with Insertion Sort in ", time.perf_counter() - last)
-    global sorting
-    sorting = False
+    FinishedSorting()
 
 def DrawList(data, current_selection):
     width = w / len(data)
@@ -116,6 +112,12 @@ def Cleanup():
     window.quit()
     os._exit(0)
 
+def FinishedSorting():
+    global sorting, finished
+    time.sleep(2)
+    sorting = False
+    finished = True
+
 window = tkinter.Tk()
 window.protocol("WM_DELETE_WINDOW", Cleanup)
 window.title("Sorting Algorithms Visualised")
@@ -124,11 +126,10 @@ canvas.pack()
 queue = queue.Queue()
 lst = random.sample(range(0, h - 10), minElements)
 sorting = False
-lstSelected = False
+finished = False
 
 def beginSort(sort):
-    global sorting
-    global lst
+    global sorting, lst
     thread = threading.Thread()
     thread.daemon = True
     if (not thread.isAlive() and not sorting):
@@ -172,7 +173,9 @@ while True:
     window.update()
     window.update_idletasks()
     canvas.delete("all")
-    if (sliderValue != slider.get() and not sorting): setLst()
+    if (sliderValue != slider.get() and not sorting or finished):
+         setLst()
+         finished = False
     if (sorting):
         function = queue.get()
         function()
