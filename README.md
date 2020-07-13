@@ -1,2 +1,2 @@
-# Sorting-Algorithms-Visualised-In-Python
-Sorting algorithms visualised using Tkinter in python. 
+# Sorting-algorithms-visualised
+Various sorting algorithms visualised using Python and Tkinter.
